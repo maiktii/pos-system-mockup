@@ -40,7 +40,7 @@ export interface IStorage {
   // Cart item methods
   addCartItem(cartItem: InsertCartItem): Promise<CartItem>;
   updateCartItemQuantity(cartId: number, productId: number, quantity: number, isCarton?: boolean): Promise<CartItem | undefined>;
-  removeCartItem(cartId: number, productId: number, isCarton?: boolean>;
+  removeCartItem(cartId: number, productId: number, isCarton?: boolean): Promise<boolean>;
   getCartItems(cartId: number): Promise<(CartItem & { product: Product })[]>;
 
   // Order methods
