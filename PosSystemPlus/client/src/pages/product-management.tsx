@@ -37,7 +37,7 @@ export default function ProductManagement() {
     stock: "",
     pcsPerCarton: "",
     imageUrl: "",
-    hasCarton: false
+    unit: "piece"
   });
   const { toast } = useToast();
 
@@ -81,7 +81,7 @@ export default function ProductManagement() {
       stock: "",
       pcsPerCarton: "",
       imageUrl: "",
-      hasCarton: false
+      unit: "piece"
     });
   };
 
@@ -155,27 +155,39 @@ export default function ProductManagement() {
                     </Select>
                   </div>
 
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="hasCarton"
-                      checked={newProduct.hasCarton}
-                      onChange={(e) => {
-                        setNewProduct(prev => ({ 
-                          ...prev, 
-                          hasCarton: e.target.checked,
-                          cartonPrice: e.target.checked ? prev.cartonPrice : "",
-                          pcsPerCarton: e.target.checked ? prev.pcsPerCarton : ""
-                        }))
-                      }}
-                      className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                    />
-                    <Label htmlFor="hasCarton">Product has carton option</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="unit">Unit Type</Label>
+                    <Select value={newProduct.unit} onValueChange={(value) => {
+                      setNewProduct(prev => ({ 
+                        ...prev, 
+                        unit: value,
+                        cartonPrice: value === "piece" ? "" : prev.cartonPrice,
+                        pcsPerCarton: value === "piece" ? "" : prev.pcsPerCarton
+                      }))
+                    }}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select unit type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="piece">Piece Only</SelectItem>
+                        <SelectItem value="bottle">Bottle/Carton</SelectItem>
+                        <SelectItem value="can">Can/Pack</SelectItem>
+                        <SelectItem value="box">Box/Bulk</SelectItem>
+                        <SelectItem value="bag">Bag/Sack</SelectItem>
+                        <SelectItem value="pack">Pack/Bundle</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   
-                  <div className={newProduct.hasCarton ? "grid grid-cols-2 gap-4" : ""}>
+                  <div className={newProduct.unit !== "piece" ? "grid grid-cols-2 gap-4" : ""}>
                     <div className="space-y-2">
-                      <Label htmlFor="price">Price ($)</Label>
+                      <Label htmlFor="price">
+                        {newProduct.unit === "piece" ? "Price ($)" : 
+                         newProduct.unit === "bottle" ? "Bottle Price ($)" :
+                         newProduct.unit === "can" ? "Can Price ($)" :
+                         newProduct.unit === "box" ? "Box Price ($)" :
+                         newProduct.unit === "bag" ? "Bag Price ($)" : "Pack Price ($)"}
+                      </Label>
                       <Input
                         id="price"
                         type="number"
@@ -187,9 +199,14 @@ export default function ProductManagement() {
                       />
                     </div>
                     
-                    {newProduct.hasCarton && (
+                    {newProduct.unit !== "piece" && (
                       <div className="space-y-2">
-                        <Label htmlFor="cartonPrice">Carton Price ($)</Label>
+                        <Label htmlFor="cartonPrice">
+                          {newProduct.unit === "bottle" ? "Carton Price ($)" :
+                           newProduct.unit === "can" ? "Pack Price ($)" :
+                           newProduct.unit === "box" ? "Bulk Price ($)" :
+                           newProduct.unit === "bag" ? "Sack Price ($)" : "Bundle Price ($)"}
+                        </Label>
                         <Input
                           id="cartonPrice"
                           type="number"
@@ -203,9 +220,9 @@ export default function ProductManagement() {
                     )}
                   </div>
                   
-                  <div className={newProduct.hasCarton ? "grid grid-cols-2 gap-4" : ""}>
+                  <div className={newProduct.unit !== "piece" ? "grid grid-cols-2 gap-4" : ""}>
                     <div className="space-y-2">
-                      <Label htmlFor="stock">Stock</Label>
+                      <Label htmlFor="stock">Stock Quantity</Label>
                       <Input
                         id="stock"
                         type="number"
@@ -216,9 +233,14 @@ export default function ProductManagement() {
                       />
                     </div>
                     
-                    {newProduct.hasCarton && (
+                    {newProduct.unit !== "piece" && (
                       <div className="space-y-2">
-                        <Label htmlFor="pcsPerCarton">Pieces per Carton</Label>
+                        <Label htmlFor="pcsPerCarton">
+                          {newProduct.unit === "bottle" ? "Bottles per Carton" :
+                           newProduct.unit === "can" ? "Cans per Pack" :
+                           newProduct.unit === "box" ? "Items per Bulk" :
+                           newProduct.unit === "bag" ? "Items per Sack" : "Items per Bundle"}
+                        </Label>
                         <Input
                           id="pcsPerCarton"
                           type="number"
