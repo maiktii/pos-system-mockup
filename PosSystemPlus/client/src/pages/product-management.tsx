@@ -156,101 +156,194 @@ export default function ProductManagement() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="unit">Unit Type</Label>
-                    <Select value={newProduct.unit} onValueChange={(value) => {
-                      setNewProduct(prev => ({ 
-                        ...prev, 
-                        unit: value,
-                        cartonPrice: value === "piece" ? "" : prev.cartonPrice,
-                        pcsPerCarton: value === "piece" ? "" : prev.pcsPerCarton
-                      }))
-                    }}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select unit type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="piece">Piece Only</SelectItem>
-                        <SelectItem value="bottle">Bottle/Carton</SelectItem>
-                        <SelectItem value="can">Can/Pack</SelectItem>
-                        <SelectItem value="box">Box/Bulk</SelectItem>
-                        <SelectItem value="bag">Bag/Sack</SelectItem>
-                        <SelectItem value="pack">Pack/Bundle</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label>Unit Types</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="piece"
+                          checked={newProduct.unit.includes("piece")}
+                          onChange={(e) => {
+                            const units = newProduct.unit.split(",").filter(u => u);
+                            if (e.target.checked) {
+                              if (!units.includes("piece")) units.push("piece");
+                            } else {
+                              const index = units.indexOf("piece");
+                              if (index > -1) units.splice(index, 1);
+                            }
+                            setNewProduct(prev => ({ ...prev, unit: units.join(",") }));
+                          }}
+                          className="h-4 w-4"
+                        />
+                        <Label htmlFor="piece">Piece</Label>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="bottle"
+                          checked={newProduct.unit.includes("bottle")}
+                          onChange={(e) => {
+                            const units = newProduct.unit.split(",").filter(u => u);
+                            if (e.target.checked) {
+                              if (!units.includes("bottle")) units.push("bottle");
+                            } else {
+                              const index = units.indexOf("bottle");
+                              if (index > -1) units.splice(index, 1);
+                            }
+                            setNewProduct(prev => ({ ...prev, unit: units.join(",") }));
+                          }}
+                          className="h-4 w-4"
+                        />
+                        <Label htmlFor="bottle">Bottle/Carton</Label>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="can"
+                          checked={newProduct.unit.includes("can")}
+                          onChange={(e) => {
+                            const units = newProduct.unit.split(",").filter(u => u);
+                            if (e.target.checked) {
+                              if (!units.includes("can")) units.push("can");
+                            } else {
+                              const index = units.indexOf("can");
+                              if (index > -1) units.splice(index, 1);
+                            }
+                            setNewProduct(prev => ({ ...prev, unit: units.join(",") }));
+                          }}
+                          className="h-4 w-4"
+                        />
+                        <Label htmlFor="can">Can/Pack</Label>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="box"
+                          checked={newProduct.unit.includes("box")}
+                          onChange={(e) => {
+                            const units = newProduct.unit.split(",").filter(u => u);
+                            if (e.target.checked) {
+                              if (!units.includes("box")) units.push("box");
+                            } else {
+                              const index = units.indexOf("box");
+                              if (index > -1) units.splice(index, 1);
+                            }
+                            setNewProduct(prev => ({ ...prev, unit: units.join(",") }));
+                          }}
+                          className="h-4 w-4"
+                        />
+                        <Label htmlFor="box">Box/Bulk</Label>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="bag"
+                          checked={newProduct.unit.includes("bag")}
+                          onChange={(e) => {
+                            const units = newProduct.unit.split(",").filter(u => u);
+                            if (e.target.checked) {
+                              if (!units.includes("bag")) units.push("bag");
+                            } else {
+                              const index = units.indexOf("bag");
+                              if (index > -1) units.splice(index, 1);
+                            }
+                            setNewProduct(prev => ({ ...prev, unit: units.join(",") }));
+                          }}
+                          className="h-4 w-4"
+                        />
+                        <Label htmlFor="bag">Bag/Sack</Label>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="pack"
+                          checked={newProduct.unit.includes("pack")}
+                          onChange={(e) => {
+                            const units = newProduct.unit.split(",").filter(u => u);
+                            if (e.target.checked) {
+                              if (!units.includes("pack")) units.push("pack");
+                            } else {
+                              const index = units.indexOf("pack");
+                              if (index > -1) units.splice(index, 1);
+                            }
+                            setNewProduct(prev => ({ ...prev, unit: units.join(",") }));
+                          }}
+                          className="h-4 w-4"
+                        />
+                        <Label htmlFor="pack">Pack/Bundle</Label>
+                      </div>
+                    </div>
                   </div>
                   
-                  <div className={newProduct.unit !== "piece" ? "grid grid-cols-2 gap-4" : ""}>
-                    <div className="space-y-2">
-                      <Label htmlFor="price">
-                        {newProduct.unit === "piece" ? "Price ($)" : 
-                         newProduct.unit === "bottle" ? "Bottle Price ($)" :
-                         newProduct.unit === "can" ? "Can Price ($)" :
-                         newProduct.unit === "box" ? "Box Price ($)" :
-                         newProduct.unit === "bag" ? "Bag Price ($)" : "Pack Price ($)"}
-                      </Label>
-                      <Input
-                        id="price"
-                        type="number"
-                        step="0.01"
-                        value={newProduct.price}
-                        onChange={(e) => setNewProduct(prev => ({ ...prev, price: e.target.value }))}
-                        placeholder="0.00"
-                        required
-                      />
-                    </div>
-                    
-                    {newProduct.unit !== "piece" && (
-                      <div className="space-y-2">
-                        <Label htmlFor="cartonPrice">
-                          {newProduct.unit === "bottle" ? "Carton Price ($)" :
-                           newProduct.unit === "can" ? "Pack Price ($)" :
-                           newProduct.unit === "box" ? "Bulk Price ($)" :
-                           newProduct.unit === "bag" ? "Sack Price ($)" : "Bundle Price ($)"}
-                        </Label>
-                        <Input
-                          id="cartonPrice"
-                          type="number"
-                          step="0.01"
-                          value={newProduct.cartonPrice}
-                          onChange={(e) => setNewProduct(prev => ({ ...prev, cartonPrice: e.target.value }))}
-                          placeholder="0.00"
-                          required
-                        />
+                  <div className="space-y-4">
+                    {newProduct.unit.split(",").filter(u => u).map((unitType, index) => (
+                      <div key={unitType} className="border rounded-lg p-4 space-y-3">
+                        <h4 className="font-medium capitalize">{unitType} Pricing</h4>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor={`price-${unitType}`}>
+                              {unitType === "piece" ? "Price ($)" : 
+                               unitType === "bottle" ? "Bottle Price ($)" :
+                               unitType === "can" ? "Can Price ($)" :
+                               unitType === "box" ? "Box Price ($)" :
+                               unitType === "bag" ? "Bag Price ($)" : "Pack Price ($)"}
+                            </Label>
+                            <Input
+                              id={`price-${unitType}`}
+                              type="number"
+                              step="0.01"
+                              value={index === 0 ? newProduct.price : newProduct.cartonPrice}
+                              onChange={(e) => {
+                                if (index === 0) {
+                                  setNewProduct(prev => ({ ...prev, price: e.target.value }));
+                                } else {
+                                  setNewProduct(prev => ({ ...prev, cartonPrice: e.target.value }));
+                                }
+                              }}
+                              placeholder="0.00"
+                              required
+                            />
+                          </div>
+                          
+                          {unitType !== "piece" && (
+                            <div className="space-y-2">
+                              <Label htmlFor={`qty-${unitType}`}>
+                                {unitType === "bottle" ? "Bottles per Carton" :
+                                 unitType === "can" ? "Cans per Pack" :
+                                 unitType === "box" ? "Items per Box" :
+                                 unitType === "bag" ? "Items per Bag" : "Items per Pack"}
+                              </Label>
+                              <Input
+                                id={`qty-${unitType}`}
+                                type="number"
+                                value={newProduct.pcsPerCarton}
+                                onChange={(e) => setNewProduct(prev => ({ ...prev, pcsPerCarton: e.target.value }))}
+                                placeholder="0"
+                                required
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
+                    ))}
                   </div>
                   
-                  <div className={newProduct.unit !== "piece" ? "grid grid-cols-2 gap-4" : ""}>
-                    <div className="space-y-2">
-                      <Label htmlFor="stock">Stock Quantity</Label>
-                      <Input
-                        id="stock"
-                        type="number"
-                        value={newProduct.stock}
-                        onChange={(e) => setNewProduct(prev => ({ ...prev, stock: e.target.value }))}
-                        placeholder="0"
-                        required
-                      />
-                    </div>
-                    
-                    {newProduct.unit !== "piece" && (
-                      <div className="space-y-2">
-                        <Label htmlFor="pcsPerCarton">
-                          {newProduct.unit === "bottle" ? "Bottles per Carton" :
-                           newProduct.unit === "can" ? "Cans per Pack" :
-                           newProduct.unit === "box" ? "Items per Bulk" :
-                           newProduct.unit === "bag" ? "Items per Sack" : "Items per Bundle"}
-                        </Label>
-                        <Input
-                          id="pcsPerCarton"
-                          type="number"
-                          value={newProduct.pcsPerCarton}
-                          onChange={(e) => setNewProduct(prev => ({ ...prev, pcsPerCarton: e.target.value }))}
-                          placeholder="0"
-                          required
-                        />
-                      </div>
-                    )}
+                  <div className="space-y-2">
+                    <Label htmlFor="stock">Stock Quantity</Label>
+                    <Input
+                      id="stock"
+                      type="number"
+                      value={newProduct.stock}
+                      onChange={(e) => setNewProduct(prev => ({ ...prev, stock: e.target.value }))}
+                      placeholder="0"
+                      required
+                    />
                   </div>
                   
                   <div className="space-y-2">
