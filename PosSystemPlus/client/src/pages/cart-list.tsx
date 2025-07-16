@@ -74,6 +74,10 @@ export default function CartList() {
               <span className="text-sm text-muted-foreground">
                 Employee: <span className="font-medium">{employee.name}</span>
               </span>
+              <Button variant="outline" size="sm" onClick={() => setLocation("/admin-dashboard")}>
+                <Shield className="h-4 w-4 mr-2" />
+                Admin
+              </Button>
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut className="h-4 w-4" />
               </Button>
