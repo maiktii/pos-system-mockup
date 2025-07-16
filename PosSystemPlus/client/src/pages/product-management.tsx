@@ -36,7 +36,8 @@ export default function ProductManagement() {
     cartonPrice: "",
     stock: "",
     pcsPerCarton: "",
-    imageUrl: ""
+    imageUrl: "",
+    hasCarton: false
   });
   const { toast } = useToast();
 
@@ -79,7 +80,8 @@ export default function ProductManagement() {
       cartonPrice: "",
       stock: "",
       pcsPerCarton: "",
-      imageUrl: ""
+      imageUrl: "",
+      hasCarton: false
     });
   };
 
@@ -152,8 +154,26 @@ export default function ProductManagement() {
                       </SelectContent>
                     </Select>
                   </div>
+
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="hasCarton"
+                      checked={newProduct.hasCarton}
+                      onChange={(e) => {
+                        setNewProduct(prev => ({ 
+                          ...prev, 
+                          hasCarton: e.target.checked,
+                          cartonPrice: e.target.checked ? prev.cartonPrice : "",
+                          pcsPerCarton: e.target.checked ? prev.pcsPerCarton : ""
+                        }))
+                      }}
+                      className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <Label htmlFor="hasCarton">Product has carton option</Label>
+                  </div>
                   
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className={newProduct.hasCarton ? "grid grid-cols-2 gap-4" : ""}>
                     <div className="space-y-2">
                       <Label htmlFor="price">Price ($)</Label>
                       <Input
@@ -167,21 +187,23 @@ export default function ProductManagement() {
                       />
                     </div>
                     
-                    <div className="space-y-2">
-                      <Label htmlFor="cartonPrice">Carton Price ($)</Label>
-                      <Input
-                        id="cartonPrice"
-                        type="number"
-                        step="0.01"
-                        value={newProduct.cartonPrice}
-                        onChange={(e) => setNewProduct(prev => ({ ...prev, cartonPrice: e.target.value }))}
-                        placeholder="0.00"
-                        required
-                      />
-                    </div>
+                    {newProduct.hasCarton && (
+                      <div className="space-y-2">
+                        <Label htmlFor="cartonPrice">Carton Price ($)</Label>
+                        <Input
+                          id="cartonPrice"
+                          type="number"
+                          step="0.01"
+                          value={newProduct.cartonPrice}
+                          onChange={(e) => setNewProduct(prev => ({ ...prev, cartonPrice: e.target.value }))}
+                          placeholder="0.00"
+                          required
+                        />
+                      </div>
+                    )}
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className={newProduct.hasCarton ? "grid grid-cols-2 gap-4" : ""}>
                     <div className="space-y-2">
                       <Label htmlFor="stock">Stock</Label>
                       <Input
@@ -194,17 +216,19 @@ export default function ProductManagement() {
                       />
                     </div>
                     
-                    <div className="space-y-2">
-                      <Label htmlFor="pcsPerCarton">Pieces per Carton</Label>
-                      <Input
-                        id="pcsPerCarton"
-                        type="number"
-                        value={newProduct.pcsPerCarton}
-                        onChange={(e) => setNewProduct(prev => ({ ...prev, pcsPerCarton: e.target.value }))}
-                        placeholder="0"
-                        required
-                      />
-                    </div>
+                    {newProduct.hasCarton && (
+                      <div className="space-y-2">
+                        <Label htmlFor="pcsPerCarton">Pieces per Carton</Label>
+                        <Input
+                          id="pcsPerCarton"
+                          type="number"
+                          value={newProduct.pcsPerCarton}
+                          onChange={(e) => setNewProduct(prev => ({ ...prev, pcsPerCarton: e.target.value }))}
+                          placeholder="0"
+                          required
+                        />
+                      </div>
+                    )}
                   </div>
                   
                   <div className="space-y-2">
