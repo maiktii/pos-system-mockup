@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +17,14 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  useEffect(() => {
+    // Check for admin authentication status in localStorage on component mount
+    const storedAdminAuth = localStorage.getItem("adminAuthenticated");
+    if (storedAdminAuth === "true") {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -25,6 +32,7 @@ export default function AdminDashboard() {
     // Demo admin credentials
     if (credentials.username === "admin" && credentials.password === "admin123") {
       setIsAuthenticated(true);
+      localStorage.setItem("adminAuthenticated", "true"); // Store authentication status
       toast({
         title: "Admin login successful",
         description: "Welcome to the admin dashboard!"
@@ -41,6 +49,16 @@ export default function AdminDashboard() {
 
   const handleGoBack = () => {
     setLocation("/carts");
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem("adminAuthenticated");
+    setCredentials({ username: "", password: "" });
+    toast({
+      title: "Logged out",
+      description: "You have been logged out of the admin dashboard."
+    });
   };
 
   if (!isAuthenticated) {
@@ -67,7 +85,7 @@ export default function AdminDashboard() {
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
@@ -79,19 +97,19 @@ export default function AdminDashboard() {
                   required
                 />
               </div>
-              
+
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
             </form>
-            
+
             <div className="mt-6 text-center">
               <Button variant="link" onClick={handleGoBack} className="text-sm">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to POS System
               </Button>
             </div>
-            
+
             <div className="mt-4 text-center text-sm text-muted-foreground">
               <p>Demo credentials: Username: <code className="bg-muted px-2 py-1 rounded">admin</code> | Password: <code className="bg-muted px-2 py-1 rounded">admin123</code></p>
             </div>
@@ -108,15 +126,15 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
+              <Button variant="ghost" onClick={handleGoBack} className="text-white hover:bg-white/20 mr-3">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
               <Shield className="h-6 w-6 text-white mr-3" />
               <h1 className="text-xl font-semibold text-white">Admin Dashboard</h1>
             </div>
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" onClick={handleGoBack} className="text-white hover:bg-white/20">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to POS
-              </Button>
-            </div>
+            <Button variant="outline" onClick={handleLogout} className="text-white border-white/20 hover:bg-white/20">
+              Logout
+            </Button>
           </div>
         </div>
       </header>
