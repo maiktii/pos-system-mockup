@@ -19,37 +19,38 @@ export interface IStorage {
   // Employee methods
   getEmployeeByCredentials(employeeId: string, password: string): Promise<Employee | undefined>;
   createEmployee(employee: InsertEmployee): Promise<Employee>;
-  
+
   // Customer methods
   getCustomer(id: number): Promise<Customer | undefined>;
   createCustomer(customer: InsertCustomer): Promise<Customer>;
-  
+
   // Product methods
   getAllProducts(): Promise<ProductWithStock[]>;
   getProductsByCategory(category: string): Promise<ProductWithStock[]>;
   getProduct(id: number): Promise<Product | undefined>;
   updateProductStock(id: number, stockChange: number): Promise<Product | undefined>;
-  
+
   // Cart methods
   createCart(cart: InsertCart): Promise<Cart>;
   getCart(id: number): Promise<Cart | undefined>;
   getCartWithDetails(id: number): Promise<CartWithDetails | undefined>;
   getActiveCartsByEmployee(employeeId: number): Promise<CartWithDetails[]>;
   updateCartStatus(id: number, status: string): Promise<Cart | undefined>;
-  
+
   // Cart item methods
   addCartItem(cartItem: InsertCartItem): Promise<CartItem>;
   updateCartItemQuantity(cartId: number, productId: number, quantity: number, isCarton?: boolean): Promise<CartItem | undefined>;
-  removeCartItem(cartId: number, productId: number, isCarton?: boolean): Promise<boolean>;
+  removeCartItem(cartId: number, productId: number, isCarton?: boolean>;
   getCartItems(cartId: number): Promise<(CartItem & { product: Product })[]>;
-  
+
   // Order methods
   createOrder(order: InsertOrder): Promise<Order>;
   getOrder(id: number): Promise<Order | undefined>;
-  
+
   // Transaction methods
   getCompletedTransactions(employeeId: number): Promise<CartWithDetails[]>;
   getTransaction(id: number): Promise<CartWithDetails | undefined>;
+  getAllTransactions(): Promise<CartWithDetails[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -59,7 +60,7 @@ export class MemStorage implements IStorage {
   private carts: Map<number, Cart> = new Map();
   private cartItems: Map<number, CartItem> = new Map();
   private orders: Map<number, Order> = new Map();
-  
+
   private currentEmployeeId = 1;
   private currentCustomerId = 1;
   private currentProductId = 1;
@@ -309,7 +310,7 @@ export class MemStorage implements IStorage {
     const cartItem = Array.from(this.cartItems.values()).find(
       item => item.cartId === cartId && item.productId === productId && (isCarton === undefined || item.isCarton === isCarton)
     );
-    
+
     if (!cartItem) return undefined;
 
     if (quantity <= 0) {
@@ -326,7 +327,7 @@ export class MemStorage implements IStorage {
     const cartItem = Array.from(this.cartItems.values()).find(
       item => item.cartId === cartId && item.productId === productId && (isCarton === undefined || item.isCarton === isCarton)
     );
-    
+
     if (!cartItem) return false;
 
     this.cartItems.delete(cartItem.id);
@@ -335,7 +336,7 @@ export class MemStorage implements IStorage {
 
   async getCartItems(cartId: number): Promise<(CartItem & { product: Product })[]> {
     const items = Array.from(this.cartItems.values()).filter(item => item.cartId === cartId);
-    
+
     return items.map(item => {
       const product = this.products.get(item.productId);
       if (!product) throw new Error(`Product ${item.productId} not found`);
@@ -374,6 +375,15 @@ export class MemStorage implements IStorage {
       return undefined;
     }
     return this.getCartWithDetails(id);
+  }
+
+  async getAllTransactions(): Promise<CartWithDetails[]> {
+    const completedCarts = Array.from(this.carts.values())
+      .filter(cart => cart.status === "confirmed" || cart.status === "rejected")
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    const results = await Promise.all(completedCarts.map(cart => this.getCartWithDetails(cart.id)));
+    return results.filter(cart => cart !== undefined) as CartWithDetails[];
   }
 }
 

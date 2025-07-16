@@ -1,9 +1,15 @@
 
+import { useState } from "react";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, TrendingUp, DollarSign, ShoppingCart, Users } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, TrendingUp, DollarSign, ShoppingCart, Users, Calendar, Filter, Eye } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
+import type { CartWithDetails } from "@shared/schema";
 
 // Dummy data
 const dailySales = [
@@ -35,10 +41,59 @@ const monthlyTrend = [
 
 export default function Analytics() {
   const [, setLocation] = useLocation();
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+
+  // Fetch transactions data
+  const { data: transactions, isLoading: isLoadingTransactions } = useQuery<CartWithDetails[]>({
+    queryKey: ["/api/all-transactions"],
+    queryFn: async () => {
+      const response = await fetch("/api/all-transactions");
+      if (!response.ok) throw new Error("Failed to fetch transactions");
+      return response.json();
+    }
+  });
 
   const handleGoBack = () => {
     setLocation("/admin");
   };
+
+  const handleViewTransaction = (transactionId: number) => {
+    setLocation(`/transaction/${transactionId}`);
+  };
+
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case "confirmed":
+        return "default";
+      case "rejected":
+        return "destructive";
+      default:
+        return "secondary";
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "confirmed":
+        return "Success";
+      case "rejected":
+        return "Cancelled";
+      default:
+        return status;
+    }
+  };
+
+  // Filter transactions by date range
+  const filteredTransactions = transactions?.filter(transaction => {
+    const transactionDate = new Date(transaction.createdAt);
+    const fromDate = dateFrom ? new Date(dateFrom) : null;
+    const toDate = dateTo ? new Date(dateTo + 'T23:59:59') : null; // Include the entire day
+    
+    if (fromDate && transactionDate < fromDate) return false;
+    if (toDate && transactionDate > toDate) return false;
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700">
@@ -58,8 +113,19 @@ export default function Analytics() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <Tabs defaultValue="dashboard" className="space-y-6">
+          <TabsList className="bg-white/10 border-white/20">
+            <TabsTrigger value="dashboard" className="data-[state=active]:bg-white/20 text-white">
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="transactions" className="data-[state=active]:bg-white/20 text-white">
+              Transactions
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="dashboard" className="space-y-8">
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card className="bg-white/10 backdrop-blur-sm border-white/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-white/80">Total Revenue</CardTitle>
@@ -193,6 +259,143 @@ export default function Analytics() {
             </ResponsiveContainer>
           </CardContent>
         </Card>
+          </TabsContent>
+
+          <TabsContent value="transactions" className="space-y-6">
+            {/* Date Filter Controls */}
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Filter className="h-5 w-5 mr-2" />
+                  Filter Transactions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                  <div className="space-y-2">
+                    <label className="text-sm text-white/70">Date From:</label>
+                    <Input
+                      type="date"
+                      value={dateFrom}
+                      onChange={(e) => setDateFrom(e.target.value)}
+                      className="bg-white/10 border-white/20 text-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm text-white/70">Date To:</label>
+                    <Input
+                      type="date"
+                      value={dateTo}
+                      onChange={(e) => setDateTo(e.target.value)}
+                      className="bg-white/10 border-white/20 text-white"
+                    />
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => { setDateFrom(""); setDateTo(""); }}
+                    className="border-white/20 text-white hover:bg-white/20"
+                  >
+                    Clear Filters
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Transactions List */}
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+              <CardHeader>
+                <CardTitle className="text-white">All Transactions</CardTitle>
+                <CardDescription className="text-white/70">
+                  {filteredTransactions?.length || 0} transactions found
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoadingTransactions ? (
+                  <div className="space-y-4">
+                    {[...Array(6)].map((_, i) => (
+                      <div key={i} className="animate-pulse bg-white/5 rounded-lg p-6">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex-1">
+                            <div className="h-4 bg-white/10 rounded w-1/4 mb-2"></div>
+                            <div className="h-3 bg-white/10 rounded w-1/3 mb-4"></div>
+                          </div>
+                          <div className="h-6 bg-white/10 rounded w-20"></div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                          <div className="h-3 bg-white/10 rounded"></div>
+                          <div className="h-3 bg-white/10 rounded"></div>
+                          <div className="h-3 bg-white/10 rounded"></div>
+                          <div className="h-3 bg-white/10 rounded"></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-4 max-h-96 overflow-y-auto">
+                    {filteredTransactions?.map((transaction) => (
+                      <div key={transaction.id} className="bg-white/5 rounded-lg p-6 hover:bg-white/10 transition-colors">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-3 mb-2">
+                              <h3 className="font-semibold text-white">{transaction.customer.name}</h3>
+                              <Badge variant={getStatusVariant(transaction.status)}>
+                                {getStatusLabel(transaction.status)}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-white/70">{transaction.customer.phoneNumber}</p>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleViewTransaction(transaction.id)}
+                            className="border-white/20 text-white hover:bg-white/20"
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </Button>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <span className="text-white/70">Items:</span>
+                            <span className="ml-2 font-medium text-white">{transaction.itemCount}</span>
+                          </div>
+                          <div>
+                            <span className="text-white/70">Total:</span>
+                            <span className="ml-2 font-medium text-green-400">${transaction.total}</span>
+                          </div>
+                          <div>
+                            <span className="text-white/70">Date:</span>
+                            <span className="ml-2 font-medium text-white">
+                              {new Date(transaction.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-white/70">Time:</span>
+                            <span className="ml-2 font-medium text-white">
+                              {new Date(transaction.createdAt).toLocaleTimeString([], { 
+                                hour: 'numeric', 
+                                minute: '2-digit' 
+                              })}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {!isLoadingTransactions && filteredTransactions?.length === 0 && (
+                  <div className="text-center py-12">
+                    <Calendar className="h-12 w-12 text-white/50 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-white mb-2">No transactions found</h3>
+                    <p className="text-white/70">Try adjusting your date filters or check back later</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

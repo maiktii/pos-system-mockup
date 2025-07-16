@@ -316,6 +316,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all transactions (for admin analytics)
+  app.get("/api/all-transactions", async (req, res) => {
+    try {
+      const transactions = await storage.getAllTransactions();
+      res.json(transactions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch all transactions" });
+    }
+  });
+
   // Get single transaction details
   app.get("/api/transactions/:id", async (req, res) => {
     try {
