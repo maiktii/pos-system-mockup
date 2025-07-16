@@ -12,6 +12,9 @@ import PaymentConfirmation from "@/pages/payment-confirmation";
 import AllProducts from "@/pages/all-products";
 import TransactionHistory from "@/pages/transaction-history";
 import TransactionDetail from "@/pages/transaction-detail";
+import AdminDashboard from "@/pages/admin-dashboard";
+import Analytics from "@/pages/analytics";
+import ProductManagement from "@/pages/product-management";
 
 function Router() {
   return (
@@ -25,6 +28,9 @@ function Router() {
       <Route path="/all-products" component={AllProducts} />
       <Route path="/transactions" component={TransactionHistory} />
       <Route path="/transaction/:id" component={TransactionDetail} />
+      <Route path="/admin" component={AdminDashboard} />
+      <Route path="/admin/analytics" component={Analytics} />
+      <Route path="/admin/products" component={ProductManagement} />
       <Route component={NotFound} />
     </Switch>
   );

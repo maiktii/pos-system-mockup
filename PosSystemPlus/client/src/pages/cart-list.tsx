@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Plus, LogOut, Package, History } from "lucide-react";
+import { ShoppingCart, Plus, LogOut, Package, History, User, Calendar, DollarSign, Clock, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getStoredEmployee, clearStoredEmployee } from "@/lib/auth";
 import { CustomerModal } from "@/components/customer-modal";
@@ -138,7 +138,7 @@ export default function CartList() {
                     </div>
                     <Badge variant="secondary">Active</Badge>
                   </div>
-                  
+
                   <div className="space-y-2 mb-4">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Items:</span>
@@ -158,7 +158,7 @@ export default function CartList() {
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="flex space-x-2">
                     <Button 
                       variant="secondary" 
